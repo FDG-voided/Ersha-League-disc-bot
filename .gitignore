@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.env
+*.egg
+
+# Discord
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

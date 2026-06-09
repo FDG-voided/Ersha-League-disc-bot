@@ -1,0 +1,72 @@
+[
+  {
+    "player_id": "p009",
+    "player_name": "Robera",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 6886
+  },
+  {
+    "player_id": "p001",
+    "player_name": "Akekan",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 50000
+  },
+  {
+    "player_id": "p001",
+    "player_name": "Akekan",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 889
+  },
+  {
+    "player_id": "p001",
+    "player_name": "Akekan",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 6667
+  },
+  {
+    "player_id": "p001",
+    "player_name": "Akekan",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 33333
+  },
+  {
+    "player_id": "p016",
+    "player_name": "ASA",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 293840
+  },
+  {
+    "player_id": "p007",
+    "player_name": "Girum",
+    "from_club_id": "geter_fc",
+    "from_club_name": "Geter FC",
+    "to_club_id": "gondar_fc",
+    "to_club_name": "Gondar FC",
+    "to_owner_id": "1513582950376013905",
+    "fee": 93930
+  }
+]

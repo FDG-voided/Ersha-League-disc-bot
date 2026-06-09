@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ersha League — Player Stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: #0a1f0a;
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 40px,
+        rgba(255, 255, 255, 0.015) 40px,
+        rgba(255, 255, 255, 0.015) 42px
+      ),
+      radial-gradient(ellipse at 20% 50%, rgba(0, 80, 0, 0.2) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, rgba(0, 100, 0, 0.15) 0%, transparent 60%);
+    min-height: 100vh;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #e0e0e0;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 0 20px;
+    border-bottom: 2px solid #FFD700;
+    margin-bottom: 30px;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 4px;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+
+  header p {
+    font-size: 0.85rem;
+    color: #889988;
+    margin-top: 5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  .search-bar {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 18px;
+    border: 1px solid #2a4a2a;
+    border-radius: 8px;
+    background: rgba(10, 30, 10, 0.8);
+    color: #e0e0e0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-bar:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  }
+
+  .search-bar::placeholder {
+    color: #556655;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, #FFD700, #DAA520);
+    color: #0a1f0a;
+  }
+
+  .btn-recalc-all {
+    background: linear-gradient(135deg, #00CED1, #008B8B);
+    color: #fff;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #1a3a1a;
+    background: rgba(10, 30, 10, 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+
+  thead {
+    background: linear-gradient(135deg, #0d2b0d, #143214);
+  }
+
+  thead th {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #FFD700;
+    padding: 16px 14px;
+    text-align: left;
+    border-bottom: 2px solid #FFD700;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #1a3a1a;
+    transition: background-color 0.2s, transform 0.15s;
+  }
+
+  tbody tr:hover {
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1.002);
+  }
+
+  tbody td {
+    padding: 14px;
+    font-size: 0.85rem;
+    vertical-align: middle;
+  }
+
+  .player-name {
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .player-position {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #aabb99;
+  }
+
+  .player-club {
+    color: #99bb99;
+  }
+
+  .stat-input {
+    width: 65px;
+    padding: 6px 8px;
+    border: 1px solid #2a4a2a;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .stat-input:focus {
+    border-color: #FFD700;
+  }
+
+  .stat-input::-webkit-inner-spin-button,
+  .stat-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .stat-input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .btn-recalc {
+    padding: 6px 14px;
+    border: 1px solid #FFD700;
+    border-radius: 6px;
+    background: transparent;
+    color: #FFD700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-recalc:hover {
+    background: #FFD700;
+    color: #0a1f0a;
+  }
+
+  .rating-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 45px;
+    text-align: center;
+  }
+
+  .rating-bronze {
+    background: linear-gradient(135deg, #8B7355, #6B5335);
+    color: #e0d0c0;
+    box-shadow: 0 0 8px rgba(139, 115, 85, 0.3);
+  }
+
+  .rating-silver {
+    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+    color: #1a1a1a;
+    box-shadow: 0 0 8px rgba(192, 192, 192, 0.3);
+  }
+
+  .rating-gold {
+    background: linear-gradient(135deg, #FFD700, #DAA520);
+    color: #1a1a1a;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+  }
+
+  .rating-elite {
+    background: linear-gradient(135deg, #00CED1, #00A0A3);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0, 206, 209, 0.5), 0 0 30px rgba(0, 206, 209, 0.2);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  }
+
+  .status-bar {
+    margin-top: 20px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    display: none;
+  }
+
+  .status-success {
+    display: block;
+    background: rgba(0, 200, 100, 0.15);
+    border: 1px solid #00C864;
+    color: #00E080;
+  }
+
+  .status-error {
+    display: block;
+    background: rgba(255, 50, 50, 0.15);
+    border: 1px solid #FF4444;
+    color: #FF6666;
+  }
+
+  .status-info {
+    display: block;
+    background: rgba(0, 206, 209, 0.1);
+    border: 1px solid #00CED1;
+    color: #00CED1;
+  }
+
+  footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    color: #445544;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    header h1 { font-size: 2.5rem; }
+    .controls { flex-direction: column; }
+    .search-bar { width: 100%; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>ERSHA LEAGUE</h1>
+    <p>Player Statistics &amp; Rating Manager</p>
+  </header>
+
+  <div class="controls">
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search by name or club...">
+    <label class="btn btn-load" style="background:#2a4a2a;color:#FFD700;cursor:pointer;">Load Players<input type="file" id="loadPlayers" accept=".json" hidden></label>
+    <label class="btn btn-load" style="background:#2a4a2a;color:#FFD700;cursor:pointer;">Load Clubs<input type="file" id="loadClubs" accept=".json" hidden></label>
+    <button class="btn btn-recalc-all" id="recalcAllBtn">Recalculate All</button>
+    <button class="btn btn-save" id="saveAllBtn">Save All ⬇</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Position</th>
+          <th>Club</th>
+          <th>Goals</th>
+          <th>Assists</th>
+          <th>Rating</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="playerTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <div id="statusBar" class="status-bar"></div>
+
+  <footer>Ersha League • Powered by stats</footer>
+</div>
+
+<script>
+function calculateRating(goals, assists) {
+  const base = 50;
+  const goalContribution = goals * 2.5;
+  const assistContribution = assists * 1.8;
+  const combined = base + goalContribution + assistContribution;
+  const raw = Math.round(combined);
+  if (raw < 50) return 50;
+  return Math.min(99, raw);
+}
+
+function getRatingClass(rating) {
+  if (rating >= 85) return 'rating-elite';
+  if (rating >= 75) return 'rating-gold';
+  if (rating >= 65) return 'rating-silver';
+  return 'rating-bronze';
+}
+
+function getClubName(clubId, clubs) {
+  if (!clubId) return 'Free Agent';
+  const club = clubs.find(c => c.id === clubId);
+  return club ? club.name : 'Unknown';
+}
+
+let playersData = [];
+let clubsData = [];
+
+function renderTable(players, clubs) {
+  const tbody = document.getElementById('playerTableBody');
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  const filtered = players.filter(p => {
+    if (!searchTerm) return true;
+    const clubName = getClubName(p.club_id, clubs).toLowerCase();
+    return p.name.toLowerCase().includes(searchTerm) || clubName.includes(searchTerm);
+  });
+
+  tbody.innerHTML = '';
+
+  if (filtered.length === 0) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 7;
+    cell.style.textAlign = 'center';
+    cell.style.padding = '30px';
+    cell.style.color = '#556655';
+    cell.textContent = 'No players match your search.';
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    return;
+  }
+
+  filtered.forEach(p => {
+    const rating = calculateRating(p.goals, p.assists);
+    const ratingClass = getRatingClass(rating);
+    const clubName = getClubName(p.club_id, clubs);
+
+    const tr = document.createElement('tr');
+    tr.dataset.playerId = p.id;
+
+    tr.innerHTML = `
+      <td class="player-name">${escapeHtml(p.name)}</td>
+      <td class="player-position">${escapeHtml(p.position)}</td>
+      <td class="player-club">${escapeHtml(clubName)}</td>
+      <td><input type="number" class="stat-input" value="${p.goals}" min="0" step="1" data-field="goals"></td>
+      <td><input type="number" class="stat-input" value="${p.assists}" min="0" step="1" data-field="assists"></td>
+      <td><span class="rating-badge ${ratingClass}">${rating}</span></td>
+      <td><button class="btn-recalc" data-player-id="${p.id}">Recalc</button></td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll('.btn-recalc').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pid = this.dataset.playerId;
+      recalcRow(pid);
+    });
+  });
+
+  document.querySelectorAll('.stat-input').forEach(input => {
+    input.addEventListener('change', function() {
+      const tr = this.closest('tr');
+      const pid = tr.dataset.playerId;
+      updatePlayerData(pid);
+      const rating = calculateRating(
+        parseInt(tr.querySelector('input[data-field="goals"]').value) || 0,
+        parseInt(tr.querySelector('input[data-field="assists"]').value) || 0
+      );
+      const badge = tr.querySelector('.rating-badge');
+      badge.textContent = rating;
+      badge.className = `rating-badge ${getRatingClass(rating)}`;
+    });
+  });
+}
+
+function updatePlayerData(pid) {
+  const tr = document.querySelector(`tr[data-player-id="${pid}"]`);
+  if (!tr) return;
+  const goals = parseInt(tr.querySelector('input[data-field="goals"]').value) || 0;
+  const assists = parseInt(tr.querySelector('input[data-field="assists"]').value) || 0;
+  const player = playersData.find(p => p.id === pid);
+  if (player) {
+    player.goals = goals;
+    player.assists = assists;
+  }
+}
+
+function recalcRow(pid) {
+  const tr = document.querySelector(`tr[data-player-id="${pid}"]`);
+  if (!tr) return;
+  const goals = parseInt(tr.querySelector('input[data-field="goals"]').value) || 0;
+  const assists = parseInt(tr.querySelector('input[data-field="assists"]').value) || 0;
+  const rating = calculateRating(goals, assists);
+  const badge = tr.querySelector('.rating-badge');
+  badge.textContent = rating;
+  badge.className = `rating-badge ${getRatingClass(rating)}`;
+  updatePlayerData(pid);
+  showStatus(`Rating updated for ${getPlayerName(pid)} → ${rating}/99`, 'info');
+}
+
+function getPlayerName(pid) {
+  const p = playersData.find(p => p.id === pid);
+  return p ? p.name : 'Unknown';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showStatus(msg, type) {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.className = `status-bar status-${type}`;
+  clearTimeout(bar._timeout);
+  bar._timeout = setTimeout(() => {
+    bar.className = 'status-bar';
+  }, 3000);
+}
+
+async function tryFetch(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function readFileAsJson(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        resolve(JSON.parse(reader.result));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+async function loadFromServer() {
+  const [players, clubs] = await Promise.all([
+    tryFetch('./data/players.json'),
+    tryFetch('./data/clubs.json')
+  ]);
+  if (players && clubs) {
+    playersData = players;
+    clubsData = clubs;
+    playersData.forEach(p => {
+      p.rating = calculateRating(p.goals, p.assists);
+    });
+    renderTable(playersData, clubsData);
+    showStatus(`Loaded ${playersData.length} players from data/ folder.`, 'info');
+    return true;
+  }
+  return false;
+}
+
+document.getElementById('loadPlayers').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const data = await readFileAsJson(file);
+    playersData = data;
+    playersData.forEach(p => {
+      p.rating = calculateRating(p.goals, p.assists);
+    });
+    if (clubsData.length) renderTable(playersData, clubsData);
+    showStatus(`Loaded ${playersData.length} players from file.`, 'info');
+  } catch {
+    showStatus('Failed to parse players.json file.', 'error');
+  }
+});
+
+document.getElementById('loadClubs').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const data = await readFileAsJson(file);
+    clubsData = data;
+    if (playersData.length) renderTable(playersData, clubsData);
+    showStatus(`Loaded ${clubsData.length} clubs from file.`, 'info');
+  } catch {
+    showStatus('Failed to parse clubs.json file.', 'error');
+  }
+});
+
+(async function init() {
+  const ok = await loadFromServer();
+  if (!ok) {
+    showStatus('Open via HTTP server (run: python3 -m http.server) or use the file pickers above.', 'info');
+  }
+})();
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  renderTable(playersData, clubsData);
+});
+
+document.getElementById('recalcAllBtn').addEventListener('click', function() {
+  playersData.forEach(p => {
+    p.rating = calculateRating(p.goals, p.assists);
+  });
+  renderTable(playersData, clubsData);
+  showStatus('All player ratings recalculated.', 'info');
+});
+
+document.getElementById('saveAllBtn').addEventListener('click', function() {
+  playersData.forEach(p => {
+    p.rating = calculateRating(p.goals, p.assists);
+  });
+
+  const exportData = playersData.map(p => ({
+    id: p.id,
+    name: p.name,
+    discord_id: p.discord_id,
+    club_id: p.club_id,
+    goals: p.goals,
+    assists: p.assists,
+    rating: p.rating,
+    position: p.position,
+    nationality: p.nationality,
+  }));
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'players.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showStatus('players.json downloaded. Replace the file in the data/ folder to apply changes.', 'success');
+});
+
+</script>
+</body>
+</html>
