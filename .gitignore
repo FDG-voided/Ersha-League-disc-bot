@@ -9,6 +9,13 @@ venv/
 # Discord
 *.log
 
+# Database
+*.db
+
+# Temp / export
+nohup.out
+players.json
+
 # OS
 .DS_Store
 Thumbs.db

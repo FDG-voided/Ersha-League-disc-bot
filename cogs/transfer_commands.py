@@ -1,9 +1,10 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from uuid import uuid4
+from datetime import datetime
 
 import config
-from data_manager import _read_json_sync, PLAYERS_PATH, CLUBS_PATH, PENDING_OFFERS_PATH, get_club_by_owner_sync
 from data_manager import (
     load_players,
     load_clubs,
@@ -61,18 +62,18 @@ class TransferView(discord.ui.View):
             await interaction.response.send_message("❌ Buyer club no longer exists.", ephemeral=True)
             return
 
-        fee = offer["fee"]
+        fee = offer["amount"]
 
-        if buyer_club["budget"] < fee:
-            await interaction.response.send_message(f"❌ {buyer_club['name']} no longer has enough budget. They need **{fee:,}** but only have **{buyer_club['budget']:,}**.", ephemeral=True)
+        if buyer_club["funds"] < fee:
+            await interaction.response.send_message(f"❌ {buyer_club['name']} no longer has enough funds. They need **{fee:,}** but only have **{buyer_club['funds']:,}**.", ephemeral=True)
             return
 
         clubs = await load_clubs()
         for c in clubs:
             if c["id"] == buyer_club["id"]:
-                c["budget"] -= fee
+                c["funds"] -= fee
             if c["id"] == seller_club["id"]:
-                c["budget"] += fee
+                c["funds"] += fee
         await save_clubs(clubs)
 
         await transfer_player(player["id"], buyer_club["id"])
@@ -127,10 +128,10 @@ class TransferCommands(commands.Cog):
         return await get_club_by_owner(str(interaction.user.id))
 
     async def _other_players_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
-        club = get_club_by_owner_sync(str(interaction.user.id))
+        club = await get_club_by_owner(str(interaction.user.id))
         if not club:
             return []
-        players = _read_json_sync(PLAYERS_PATH)
+        players = await load_players()
         others = [p for p in players if p.get("club_id") is not None and p["club_id"] != club["id"]]
         return [
             app_commands.Choice(name=p["name"], value=p["name"])
@@ -141,10 +142,10 @@ class TransferCommands(commands.Cog):
         return await self._other_players_autocomplete(interaction, current)
 
     async def _accept_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
-        club = get_club_by_owner_sync(str(interaction.user.id))
+        club = await get_club_by_owner(str(interaction.user.id))
         if not club:
             return []
-        offers = _read_json_sync(PENDING_OFFERS_PATH)
+        offers = await load_pending_offers()
         mine = [o for o in offers if o["to_club_id"] == club["id"]]
         return [
             app_commands.Choice(name=o["player_name"], value=o["player_name"])
@@ -232,16 +233,17 @@ class TransferCommands(commands.Cog):
             await interaction.followup.send(embed=embed)
             return
 
-        if from_club["budget"] < fee:
+        if from_club["funds"] < fee:
             embed = discord.Embed(
                 title="❌ Insufficient Budget",
-                description=f"Your club only has **{from_club['budget']:,}** budget.",
+                description=f"Your club only has **{from_club['funds']:,}** funds.",
                 color=0xFF4444,
             )
             await interaction.followup.send(embed=embed)
             return
 
         offer_data = {
+            "id": str(uuid4()),
             "player_id": match["id"],
             "player_name": match["name"],
             "from_club_id": from_club["id"],
@@ -249,7 +251,9 @@ class TransferCommands(commands.Cog):
             "to_club_id": to_club["id"],
             "to_club_name": to_club["name"],
             "to_owner_id": str(target_owner.id),
-            "fee": fee,
+            "amount": fee,
+            "status": "pending",
+            "created_at": datetime.utcnow().isoformat(),
         }
 
         offers = await load_pending_offers()
@@ -343,12 +347,12 @@ class TransferCommands(commands.Cog):
             await interaction.followup.send(embed=embed)
             return
 
-        fee = offer["fee"]
+        fee = offer["amount"]
 
-        if buyer_club["budget"] < fee:
+        if buyer_club["funds"] < fee:
             embed = discord.Embed(
                 title="❌ Buyer Insufficient Budget",
-                description=f"**{buyer_club['name']}** needs **{fee:,}** but only has **{buyer_club['budget']:,}**.",
+                description=f"**{buyer_club['name']}** needs **{fee:,}** but only has **{buyer_club['funds']:,}**.",
                 color=0xFF4444,
             )
             await interaction.followup.send(embed=embed)
@@ -357,9 +361,9 @@ class TransferCommands(commands.Cog):
         clubs = await load_clubs()
         for c in clubs:
             if c["id"] == buyer_club["id"]:
-                c["budget"] -= fee
+                c["funds"] -= fee
             if c["id"] == seller_club["id"]:
-                c["budget"] += fee
+                c["funds"] += fee
         await save_clubs(clubs)
 
         await transfer_player(player["id"], buyer_club["id"])

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import config
-from data_manager import recalculate_player_ratings
+from data_manager import init_db, recalculate_player_ratings
 
 
 class ErshaLeagueBot(commands.Bot):
@@ -11,6 +11,7 @@ class ErshaLeagueBot(commands.Bot):
         super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self):
+        await init_db()
         await self.load_extension("cogs.player_commands")
         await self.load_extension("cogs.club_commands")
         await self.load_extension("cogs.transfer_commands")

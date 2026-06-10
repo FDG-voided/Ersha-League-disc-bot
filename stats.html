@@ -3,612 +3,436 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ersha League — Player Stats</title>
+<title>Ersha League — Admin Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background-color: #0a1f0a;
-    background-image:
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 40px,
-        rgba(255, 255, 255, 0.015) 40px,
-        rgba(255, 255, 255, 0.015) 42px
-      ),
-      radial-gradient(ellipse at 20% 50%, rgba(0, 80, 0, 0.2) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 50%, rgba(0, 100, 0, 0.15) 0%, transparent 60%);
-    min-height: 100vh;
-    font-family: 'IBM Plex Mono', monospace;
-    color: #e0e0e0;
-    padding: 20px;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  header {
-    text-align: center;
-    padding: 30px 0 20px;
-    border-bottom: 2px solid #FFD700;
-    margin-bottom: 30px;
-  }
-
-  header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3.5rem;
-    letter-spacing: 4px;
-    color: #FFD700;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-  }
-
-  header p {
-    font-size: 0.85rem;
-    color: #889988;
-    margin-top: 5px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    margin-bottom: 25px;
-  }
-
-  .search-bar {
-    flex: 1;
-    min-width: 200px;
-    padding: 12px 18px;
-    border: 1px solid #2a4a2a;
-    border-radius: 8px;
-    background: rgba(10, 30, 10, 0.8);
-    color: #e0e0e0;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .search-bar:focus {
-    border-color: #FFD700;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-  }
-
-  .search-bar::placeholder {
-    color: #556655;
-  }
-
-  .btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    text-transform: uppercase;
-  }
-
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  }
-
-  .btn:active {
-    transform: translateY(0);
-  }
-
-  .btn-save {
-    background: linear-gradient(135deg, #FFD700, #DAA520);
-    color: #0a1f0a;
-  }
-
-  .btn-recalc-all {
-    background: linear-gradient(135deg, #00CED1, #008B8B);
-    color: #fff;
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1px solid #1a3a1a;
-    background: rgba(10, 30, 10, 0.6);
-    backdrop-filter: blur(2px);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 700px;
-  }
-
-  thead {
-    background: linear-gradient(135deg, #0d2b0d, #143214);
-  }
-
-  thead th {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 2px;
-    color: #FFD700;
-    padding: 16px 14px;
-    text-align: left;
-    border-bottom: 2px solid #FFD700;
-    text-transform: uppercase;
-  }
-
-  tbody tr {
-    border-bottom: 1px solid #1a3a1a;
-    transition: background-color 0.2s, transform 0.15s;
-  }
-
-  tbody tr:hover {
-    background: rgba(255, 215, 0, 0.05);
-    transform: scale(1.002);
-  }
-
-  tbody td {
-    padding: 14px;
-    font-size: 0.85rem;
-    vertical-align: middle;
-  }
-
-  .player-name {
-    font-weight: 600;
-    color: #ffffff;
-  }
-
-  .player-position {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 1px;
-    color: #aabb99;
-  }
-
-  .player-club {
-    color: #99bb99;
-  }
-
-  .stat-input {
-    width: 65px;
-    padding: 6px 8px;
-    border: 1px solid #2a4a2a;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.4);
-    color: #fff;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .stat-input:focus {
-    border-color: #FFD700;
-  }
-
-  .stat-input::-webkit-inner-spin-button,
-  .stat-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .stat-input[type=number] {
-    -moz-appearance: textfield;
-  }
-
-  .btn-recalc {
-    padding: 6px 14px;
-    border: 1px solid #FFD700;
-    border-radius: 6px;
-    background: transparent;
-    color: #FFD700;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    text-transform: uppercase;
-  }
-
-  .btn-recalc:hover {
-    background: #FFD700;
-    color: #0a1f0a;
-  }
-
-  .rating-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    min-width: 45px;
-    text-align: center;
-  }
-
-  .rating-bronze {
-    background: linear-gradient(135deg, #8B7355, #6B5335);
-    color: #e0d0c0;
-    box-shadow: 0 0 8px rgba(139, 115, 85, 0.3);
-  }
-
-  .rating-silver {
-    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-    color: #1a1a1a;
-    box-shadow: 0 0 8px rgba(192, 192, 192, 0.3);
-  }
-
-  .rating-gold {
-    background: linear-gradient(135deg, #FFD700, #DAA520);
-    color: #1a1a1a;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
-  }
-
-  .rating-elite {
-    background: linear-gradient(135deg, #00CED1, #00A0A3);
-    color: #fff;
-    box-shadow: 0 0 15px rgba(0, 206, 209, 0.5), 0 0 30px rgba(0, 206, 209, 0.2);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-  }
-
-  .status-bar {
-    margin-top: 20px;
-    padding: 12px 18px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    text-align: center;
-    display: none;
-  }
-
-  .status-success {
-    display: block;
-    background: rgba(0, 200, 100, 0.15);
-    border: 1px solid #00C864;
-    color: #00E080;
-  }
-
-  .status-error {
-    display: block;
-    background: rgba(255, 50, 50, 0.15);
-    border: 1px solid #FF4444;
-    color: #FF6666;
-  }
-
-  .status-info {
-    display: block;
-    background: rgba(0, 206, 209, 0.1);
-    border: 1px solid #00CED1;
-    color: #00CED1;
-  }
-
-  footer {
-    text-align: center;
-    padding: 30px 0 10px;
-    color: #445544;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  @media (max-width: 768px) {
-    header h1 { font-size: 2.5rem; }
-    .controls { flex-direction: column; }
-    .search-bar { width: 100%; }
-    .btn { width: 100%; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0a1f0a;
+  background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.015) 40px,rgba(255,255,255,0.015) 42px),radial-gradient(ellipse at 20% 50%,rgba(0,80,0,0.2) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(0,100,0,0.15) 0%,transparent 60%);
+  min-height:100vh;font-family:'IBM Plex Mono',monospace;color:#e0e0e0;padding:20px;
+}
+.container{max-width:1300px;margin:0 auto}
+header{text-align:center;padding:30px 0 20px;border-bottom:2px solid #FFD700;margin-bottom:20px}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:4px;color:#FFD700;text-shadow:0 0 20px rgba(255,215,0,0.3)}
+header p{font-size:.85rem;color:#889988;margin-top:5px;letter-spacing:2px;text-transform:uppercase}
+.tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:12px 28px;border:1px solid #2a4a2a;border-bottom:none;border-radius:8px 8px 0 0;background:rgba(10,30,10,0.6);color:#889988;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.tab:hover{color:#FFD700;background:rgba(20,50,20,0.8)}
+.tab.active{background:rgba(30,60,30,0.9);color:#FFD700;border-color:#FFD700}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px}
+.search-bar{flex:1;min-width:180px;padding:10px 14px;border:1px solid #2a4a2a;border-radius:8px;background:rgba(10,30,10,0.8);color:#e0e0e0;font-family:'IBM Plex Mono',monospace;font-size:.85rem;outline:none;transition:border-color .2s}
+.search-bar:focus{border-color:#FFD700}
+.search-bar::placeholder{color:#556655}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1px;cursor:pointer;transition:transform .15s,box-shadow .15s;text-transform:uppercase}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,0.4)}
+.btn:active{transform:translateY(0)}
+.btn-gold{background:linear-gradient(135deg,#FFD700,#DAA520);color:#0a1f0a}
+.btn-teal{background:linear-gradient(135deg,#00CED1,#008B8B);color:#fff}
+.btn-red{background:linear-gradient(135deg,#FF4444,#CC0000);color:#fff}
+.btn-sm{padding:6px 14px;font-size:.85rem}
+.table-wrapper{overflow-x:auto;border-radius:12px;border:1px solid #1a3a1a;background:rgba(10,30,10,0.6);backdrop-filter:blur(2px)}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead{background:linear-gradient(135deg,#0d2b0d,#143214)}
+thead th{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px;color:#FFD700;padding:12px 10px;text-align:left;border-bottom:2px solid #FFD700;text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:1px solid #1a3a1a;transition:background-color .2s}
+tbody tr:hover{background:rgba(255,215,0,0.05)}
+tbody td{padding:10px;font-size:.82rem;vertical-align:middle}
+.editable{background:rgba(0,0,0,0.3);border:1px solid #2a4a2a;border-radius:6px;padding:6px 8px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;outline:none;width:100%;min-width:60px;max-width:180px;transition:border-color .2s}
+.editable:focus{border-color:#FFD700}
+.editable-sm{max-width:80px}
+.stat-input{width:55px;padding:6px;border:1px solid #2a4a2a;border-radius:6px;background:rgba(0,0,0,0.4);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;text-align:center;outline:none;transition:border-color .2s}
+.stat-input:focus{border-color:#FFD700}
+.stat-input[type=number]{-moz-appearance:textfield}
+.stat-input::-webkit-inner-spin-button,.stat-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.rating-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:.82rem;min-width:40px;text-align:center}
+.rating-bronze{background:linear-gradient(135deg,#8B7355,#6B5335);color:#e0d0c0;box-shadow:0 0 8px rgba(139,115,85,0.3)}
+.rating-silver{background:linear-gradient(135deg,#C0C0C0,#A0A0A0);color:#1a1a1a;box-shadow:0 0 8px rgba(192,192,192,0.3)}
+.rating-gold{background:linear-gradient(135deg,#FFD700,#DAA520);color:#1a1a1a;box-shadow:0 0 12px rgba(255,215,0,0.4)}
+.rating-elite{background:linear-gradient(135deg,#00CED1,#00A0A3);color:#fff;box-shadow:0 0 15px rgba(0,206,209,0.5),0 0 30px rgba(0,206,209,0.2);text-shadow:0 0 8px rgba(255,255,255,0.3)}
+select.editable{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23FFD700' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+.status-bar{margin-top:16px;padding:10px 16px;border-radius:8px;font-size:.82rem;text-align:center;display:none}
+.status-success{display:block;background:rgba(0,200,100,0.15);border:1px solid #00C864;color:#00E080}
+.status-error{display:block;background:rgba(255,50,50,0.15);border:1px solid #FF4444;color:#FF6666}
+.status-info{display:block;background:rgba(0,206,209,0.1);border:1px solid #00CED1;color:#00CED1}
+.hidden{display:none!important}
+footer{text-align:center;padding:30px 0 10px;color:#445544;font-size:.75rem;letter-spacing:1px;text-transform:uppercase}
+.add-form{display:flex;flex-wrap:wrap;gap:10px;padding:16px;background:rgba(10,30,10,0.8);border:1px solid #1a3a1a;border-radius:12px;margin-top:16px;align-items:end}
+.add-form label{font-size:.75rem;color:#889988;text-transform:uppercase;letter-spacing:1px;display:flex;flex-direction:column;gap:4px}
+.club-card{background:rgba(10,30,10,0.8);border:1px solid #1a3a1a;border-radius:12px;padding:16px;margin-bottom:10px}
+.club-card h3{font-family:'Bebas Neue',sans-serif;color:#FFD700;letter-spacing:1px;margin-bottom:8px}
+.club-card .player-tag{display:inline-block;padding:4px 10px;background:rgba(0,80,0,0.3);border:1px solid #2a4a2a;border-radius:6px;margin:3px;font-size:.78rem}
+@media(max-width:768px){
+  header h1{font-size:2.5rem}
+  .tabs{flex-direction:column}
+  .tab{border-bottom:1px solid #2a4a2a;border-radius:8px}
+  .controls{flex-direction:column}
+  .search-bar{width:100%}
+}
 </style>
 </head>
 <body>
 <div class="container">
   <header>
     <h1>ERSHA LEAGUE</h1>
-    <p>Player Statistics &amp; Rating Manager</p>
+    <p>Admin Panel</p>
   </header>
 
-  <div class="controls">
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search by name or club...">
-    <label class="btn btn-load" style="background:#2a4a2a;color:#FFD700;cursor:pointer;">Load Players<input type="file" id="loadPlayers" accept=".json" hidden></label>
-    <label class="btn btn-load" style="background:#2a4a2a;color:#FFD700;cursor:pointer;">Load Clubs<input type="file" id="loadClubs" accept=".json" hidden></label>
-    <button class="btn btn-recalc-all" id="recalcAllBtn">Recalculate All</button>
-    <button class="btn btn-save" id="saveAllBtn">Save All ⬇</button>
+  <div class="tabs" id="tabBar">
+    <div class="tab active" data-tab="players">Players</div>
+    <div class="tab" data-tab="clubs">Clubs</div>
+    <div class="tab" data-tab="offers">Pending Offers</div>
   </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Player</th>
-          <th>Position</th>
-          <th>Club</th>
-          <th>Goals</th>
-          <th>Assists</th>
-          <th>Rating</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="playerTableBody">
-      </tbody>
-    </table>
+  <div id="tabPlayers">
+    <div class="controls">
+      <input type="text" class="search-bar" id="playerSearch" placeholder="Search players...">
+      <button class="btn btn-teal" id="recalcAllBtn">Recalc All</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Nation</th>
+            <th>Age</th>
+            <th>Club</th>
+            <th style="width:60px">G</th>
+            <th style="width:60px">A</th>
+            <th>Rating</th>
+            <th style="width:100px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="playerBody"></tbody>
+      </table>
+    </div>
+    <div class="add-form" id="playerAddForm">
+      <label>Name <input type="text" id="newPlayerName" class="editable" style="max-width:160px"></label>
+      <label>Position <select id="newPlayerPos" class="editable" style="max-width:110px"><option>GK</option><option>CB</option><option>LB</option><option>RB</option><option>CM</option><option>CAM</option><option>LM</option><option>RM</option><option>LW</option><option>RW</option><option>ST</option><option>CF</option></select></label>
+      <label>Nation <input type="text" id="newPlayerNat" class="editable" style="max-width:100px" value="Unknown"></label>
+      <label>Age <input type="number" id="newPlayerAge" class="stat-input" value="25" min="16" max="45"></label>
+      <label>Club
+        <select id="newPlayerClub" class="editable" style="max-width:150px">
+          <option value="">Free Agent</option>
+        </select>
+      </label>
+      <button class="btn btn-gold" id="addPlayerBtn">+ Add Player</button>
+    </div>
+  </div>
+
+  <div id="tabClubs" class="hidden">
+    <div class="controls">
+      <button class="btn btn-teal" id="refreshClubsBtn">Refresh Clubs</button>
+      <input type="number" id="bulkFundsInput" class="stat-input" value="1000000" min="0" style="width:120px" placeholder="Funds">
+      <button class="btn btn-gold" id="setAllFundsBtn">Set All Funds</button>
+    </div>
+    <div id="clubsContainer"></div>
+    <div class="add-form">
+      <label>Club Name <input type="text" id="newClubName" class="editable" style="max-width:200px"></label>
+      <label>Owner Discord ID <input type="text" id="newClubOwner" class="editable" style="max-width:180px" value="0"></label>
+      <button class="btn btn-gold" id="addClubBtn">+ Add Club</button>
+    </div>
+  </div>
+
+  <div id="tabOffers" class="hidden">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Player ID</th>
+            <th>From Club</th>
+            <th>To Club</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="offersBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <div id="statusBar" class="status-bar"></div>
-
-  <footer>Ersha League • Powered by stats</footer>
+  <footer>Ersha League Admin Panel</footer>
 </div>
 
 <script>
-function calculateRating(goals, assists) {
-  const base = 50;
-  const goalContribution = goals * 2.5;
-  const assistContribution = assists * 1.8;
-  const combined = base + goalContribution + assistContribution;
-  const raw = Math.round(combined);
-  if (raw < 50) return 50;
-  return Math.min(99, raw);
-}
+const API = window.location.origin;
 
-function getRatingClass(rating) {
-  if (rating >= 85) return 'rating-elite';
-  if (rating >= 75) return 'rating-gold';
-  if (rating >= 65) return 'rating-silver';
-  return 'rating-bronze';
-}
-
-function getClubName(clubId, clubs) {
-  if (!clubId) return 'Free Agent';
-  const club = clubs.find(c => c.id === clubId);
-  return club ? club.name : 'Unknown';
-}
-
-let playersData = [];
-let clubsData = [];
-
-function renderTable(players, clubs) {
-  const tbody = document.getElementById('playerTableBody');
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-
-  const filtered = players.filter(p => {
-    if (!searchTerm) return true;
-    const clubName = getClubName(p.club_id, clubs).toLowerCase();
-    return p.name.toLowerCase().includes(searchTerm) || clubName.includes(searchTerm);
+async function api(path, opts) {
+  const res = await fetch(API + path, {
+    headers: {'Content-Type':'application/json'},
+    ...opts
   });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt);
+  }
+  return res.json();
+}
 
-  tbody.innerHTML = '';
+const POS_W={GK:[5,4],CB:[4.5,3.5],LB:[4,3.5],RB:[4,3.5],CM:[3.5,2.5],CAM:[3,2.2],LM:[3,2.5],RM:[3,2.5],LW:[2.5,2],RW:[2.5,2],ST:[2.5,1.8],CF:[2.5,1.8]};
+function posW(p){const w=POS_W[p]||[2.5,1.8];return w}
+function calcRating(g,a,p){const w=posW(p);const r=Math.round(50+g*w[0]+a*w[1]);return r<50?50:Math.min(99,r)}
+function ratingClass(r){return r>=85?'rating-elite':r>=75?'rating-gold':r>=65?'rating-silver':'rating-bronze'}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
-  if (filtered.length === 0) {
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    cell.colSpan = 7;
-    cell.style.textAlign = 'center';
-    cell.style.padding = '30px';
-    cell.style.color = '#556655';
-    cell.textContent = 'No players match your search.';
-    row.appendChild(cell);
-    tbody.appendChild(row);
+let players=[], clubs=[], offers=[];
+
+function showStatus(msg,type){
+  const b=document.getElementById('statusBar');
+  b.textContent=msg;b.className='status-bar status-'+type;
+  clearTimeout(b._t);b._t=setTimeout(()=>b.className='status-bar',4000);
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelectorAll('[id^="tab"]').forEach(x=>{if(x.id.startsWith('tab'))x.classList.add('hidden')});
+    const tab=document.getElementById('tab'+t.dataset.tab.charAt(0).toUpperCase()+t.dataset.tab.slice(1));
+    if(tab)tab.classList.remove('hidden');
+  });
+});
+
+// ---- PLAYERS ----
+function renderPlayers(){
+  const search=document.getElementById('playerSearch').value.toLowerCase();
+  const tbody=document.getElementById('playerBody');
+  tbody.innerHTML='';
+  const f=players.filter(p=>!search||p.name.toLowerCase().includes(search));
+  if(!f.length){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#556655">No players found.</td></tr>';
     return;
   }
-
-  filtered.forEach(p => {
-    const rating = calculateRating(p.goals, p.assists);
-    const ratingClass = getRatingClass(rating);
-    const clubName = getClubName(p.club_id, clubs);
-
-    const tr = document.createElement('tr');
-    tr.dataset.playerId = p.id;
-
-    tr.innerHTML = `
-      <td class="player-name">${escapeHtml(p.name)}</td>
-      <td class="player-position">${escapeHtml(p.position)}</td>
-      <td class="player-club">${escapeHtml(clubName)}</td>
-      <td><input type="number" class="stat-input" value="${p.goals}" min="0" step="1" data-field="goals"></td>
-      <td><input type="number" class="stat-input" value="${p.assists}" min="0" step="1" data-field="assists"></td>
-      <td><span class="rating-badge ${ratingClass}">${rating}</span></td>
-      <td><button class="btn-recalc" data-player-id="${p.id}">Recalc</button></td>
+  f.forEach(p=>{
+    const r=calcRating(p.goals,p.assists,p.position);
+    const tr=document.createElement('tr');
+    tr.dataset.id=p.id;
+    const clubOpts='<option value="">Free Agent</option>'+clubs.map(c=>'<option value="'+c.id+'"'+(c.id===p.club_id?' selected':'')+'>'+esc(c.name)+'</option>').join('');
+    tr.innerHTML=`
+      <td><input class="editable" value="${esc(p.name)}" data-field="name"></td>
+      <td><select class="editable" data-field="position">
+        ${['GK','CB','LB','RB','CM','CAM','LM','RM','LW','RW','ST','CF'].map(pos=>'<option'+(pos===p.position?' selected':'')+'>'+pos+'</option>').join('')}
+      </select></td>
+      <td><input class="editable editable-sm" value="${esc(p.nationality||'')}" data-field="nationality"></td>
+      <td><input type="number" class="stat-input" value="${p.age}" min="16" max="45" data-field="age"></td>
+      <td><select class="editable" data-field="club_id">${clubOpts}</select></td>
+      <td><input type="number" class="stat-input" value="${p.goals}" min="0" data-field="goals"></td>
+      <td><input type="number" class="stat-input" value="${p.assists}" min="0" data-field="assists"></td>
+      <td><span class="rating-badge ${ratingClass(r)}">${r}</span></td>
+      <td><button class="btn btn-sm btn-teal save-row" data-id="${p.id}">Save</button>
+      <button class="btn btn-sm btn-red del-row" data-id="${p.id}">Del</button></td>
     `;
-
     tbody.appendChild(tr);
   });
-
-  document.querySelectorAll('.btn-recalc').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const pid = this.dataset.playerId;
-      recalcRow(pid);
+  // event listeners
+  document.querySelectorAll('.stat-input, .editable').forEach(el=>{
+    el.addEventListener('change',function(){
+      const tr=this.closest('tr');
+      const g=parseInt(tr.querySelector('input[data-field="goals"]').value)||0;
+      const a=parseInt(tr.querySelector('input[data-field="assists"]').value)||0;
+      const pos=tr.querySelector('select[data-field="position"]')?.value||'Unknown';
+      const r=calcRating(g,a,pos);
+      const badge=tr.querySelector('.rating-badge');
+      badge.textContent=r;badge.className='rating-badge '+ratingClass(r);
     });
   });
-
-  document.querySelectorAll('.stat-input').forEach(input => {
-    input.addEventListener('change', function() {
-      const tr = this.closest('tr');
-      const pid = tr.dataset.playerId;
-      updatePlayerData(pid);
-      const rating = calculateRating(
-        parseInt(tr.querySelector('input[data-field="goals"]').value) || 0,
-        parseInt(tr.querySelector('input[data-field="assists"]').value) || 0
-      );
-      const badge = tr.querySelector('.rating-badge');
-      badge.textContent = rating;
-      badge.className = `rating-badge ${getRatingClass(rating)}`;
+  document.querySelectorAll('.save-row').forEach(b=>b.addEventListener('click',async function(){
+    const tr=this.closest('tr'),id=this.dataset.id;
+    const data={};
+    tr.querySelectorAll('[data-field]').forEach(el=>{
+      const f=el.dataset.field;
+      if(f==='goals'||f==='assists'||f==='age')data[f]=parseInt(el.value)||0;
+      else data[f]=el.value;
     });
-  });
-}
-
-function updatePlayerData(pid) {
-  const tr = document.querySelector(`tr[data-player-id="${pid}"]`);
-  if (!tr) return;
-  const goals = parseInt(tr.querySelector('input[data-field="goals"]').value) || 0;
-  const assists = parseInt(tr.querySelector('input[data-field="assists"]').value) || 0;
-  const player = playersData.find(p => p.id === pid);
-  if (player) {
-    player.goals = goals;
-    player.assists = assists;
-  }
-}
-
-function recalcRow(pid) {
-  const tr = document.querySelector(`tr[data-player-id="${pid}"]`);
-  if (!tr) return;
-  const goals = parseInt(tr.querySelector('input[data-field="goals"]').value) || 0;
-  const assists = parseInt(tr.querySelector('input[data-field="assists"]').value) || 0;
-  const rating = calculateRating(goals, assists);
-  const badge = tr.querySelector('.rating-badge');
-  badge.textContent = rating;
-  badge.className = `rating-badge ${getRatingClass(rating)}`;
-  updatePlayerData(pid);
-  showStatus(`Rating updated for ${getPlayerName(pid)} → ${rating}/99`, 'info');
-}
-
-function getPlayerName(pid) {
-  const p = playersData.find(p => p.id === pid);
-  return p ? p.name : 'Unknown';
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function showStatus(msg, type) {
-  const bar = document.getElementById('statusBar');
-  bar.textContent = msg;
-  bar.className = `status-bar status-${type}`;
-  clearTimeout(bar._timeout);
-  bar._timeout = setTimeout(() => {
-    bar.className = 'status-bar';
-  }, 3000);
-}
-
-async function tryFetch(url) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-function readFileAsJson(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        resolve(JSON.parse(reader.result));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(file);
-  });
-}
-
-async function loadFromServer() {
-  const [players, clubs] = await Promise.all([
-    tryFetch('./data/players.json'),
-    tryFetch('./data/clubs.json')
-  ]);
-  if (players && clubs) {
-    playersData = players;
-    clubsData = clubs;
-    playersData.forEach(p => {
-      p.rating = calculateRating(p.goals, p.assists);
-    });
-    renderTable(playersData, clubsData);
-    showStatus(`Loaded ${playersData.length} players from data/ folder.`, 'info');
-    return true;
-  }
-  return false;
-}
-
-document.getElementById('loadPlayers').addEventListener('change', async function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    const data = await readFileAsJson(file);
-    playersData = data;
-    playersData.forEach(p => {
-      p.rating = calculateRating(p.goals, p.assists);
-    });
-    if (clubsData.length) renderTable(playersData, clubsData);
-    showStatus(`Loaded ${playersData.length} players from file.`, 'info');
-  } catch {
-    showStatus('Failed to parse players.json file.', 'error');
-  }
-});
-
-document.getElementById('loadClubs').addEventListener('change', async function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    const data = await readFileAsJson(file);
-    clubsData = data;
-    if (playersData.length) renderTable(playersData, clubsData);
-    showStatus(`Loaded ${clubsData.length} clubs from file.`, 'info');
-  } catch {
-    showStatus('Failed to parse clubs.json file.', 'error');
-  }
-});
-
-(async function init() {
-  const ok = await loadFromServer();
-  if (!ok) {
-    showStatus('Open via HTTP server (run: python3 -m http.server) or use the file pickers above.', 'info');
-  }
-})();
-
-document.getElementById('searchInput').addEventListener('input', function() {
-  renderTable(playersData, clubsData);
-});
-
-document.getElementById('recalcAllBtn').addEventListener('click', function() {
-  playersData.forEach(p => {
-    p.rating = calculateRating(p.goals, p.assists);
-  });
-  renderTable(playersData, clubsData);
-  showStatus('All player ratings recalculated.', 'info');
-});
-
-document.getElementById('saveAllBtn').addEventListener('click', function() {
-  playersData.forEach(p => {
-    p.rating = calculateRating(p.goals, p.assists);
-  });
-
-  const exportData = playersData.map(p => ({
-    id: p.id,
-    name: p.name,
-    discord_id: p.discord_id,
-    club_id: p.club_id,
-    goals: p.goals,
-    assists: p.assists,
-    rating: p.rating,
-    position: p.position,
-    nationality: p.nationality,
+    try{
+      await api('/api/players/'+id,{method:'PUT',body:JSON.stringify({
+        name:data.name,club_id:data.club_id||null,nationality:data.nationality,
+        position:data.position,age:data.age,goals:data.goals,assists:data.assists
+      })});
+      showStatus('Saved '+data.name,'success');
+      await loadAll();
+    }catch(e){showStatus('Save failed: '+e.message,'error')}
   }));
+  document.querySelectorAll('.del-row').forEach(b=>b.addEventListener('click',async function(){
+    const id=this.dataset.id;
+    if(!confirm('Delete this player?'))return;
+    try{
+      await api('/api/players/'+id,{method:'DELETE'});
+      showStatus('Player deleted','success');
+      await loadAll();
+    }catch(e){showStatus('Delete failed: '+e.message,'error')}
+  }));
+}
 
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'players.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  showStatus('players.json downloaded. Replace the file in the data/ folder to apply changes.', 'success');
+document.getElementById('playerSearch').addEventListener('input',renderPlayers);
+document.getElementById('recalcAllBtn').addEventListener('click',async()=>{
+  const rows = document.querySelectorAll('#playerBody tr');
+  for(const tr of rows){
+    const pid = tr.dataset.id;
+    if(!pid) continue;
+    const name = tr.querySelector('input[data-field="name"]')?.value||'';
+    const club_id = tr.querySelector('select[data-field="club_id"]')?.value||null;
+    const nationality = tr.querySelector('input[data-field="nationality"]')?.value||'Unknown';
+    const position = tr.querySelector('select[data-field="position"]')?.value||'Unknown';
+    const age = parseInt(tr.querySelector('input[data-field="age"]')?.value)||25;
+    const goals = parseInt(tr.querySelector('input[data-field="goals"]')?.value)||0;
+    const assists = parseInt(tr.querySelector('input[data-field="assists"]')?.value)||0;
+    try{
+      await api('/api/players/'+pid,{method:'PUT',body:JSON.stringify({name,club_id:club_id||null,nationality,position,age,goals,assists})});
+    }catch(e){}
+  }
+  await loadAll();
+  showStatus('All ratings recalculated','success');
+});
+document.getElementById('addPlayerBtn').addEventListener('click',async()=>{
+  const name=document.getElementById('newPlayerName').value.trim();
+  if(!name){showStatus('Player name required','error');return}
+  try{
+    await api('/api/players',{method:'POST',body:JSON.stringify({
+      name,position:document.getElementById('newPlayerPos').value,
+      nationality:document.getElementById('newPlayerNat').value||'Unknown',
+      age:parseInt(document.getElementById('newPlayerAge').value)||25,
+      club_id:document.getElementById('newPlayerClub').value||null,
+      goals:0,assists:0
+    })});
+    showStatus('Player added','success');
+    document.getElementById('newPlayerName').value='';
+    await loadAll();
+  }catch(e){showStatus('Add failed: '+e.message,'error')}
 });
 
+// ---- CLUBS ----
+function renderClubs(){
+  const c=document.getElementById('clubsContainer');
+  c.innerHTML='';
+  if(!clubs.length){c.innerHTML='<p style="color:#556655;text-align:center;padding:30px">No clubs yet.</p>';return}
+  clubs.forEach(cl=>{
+    const card=document.createElement('div');
+    card.className='club-card';
+    const clubPlayers=players.filter(p=>p.club_id===cl.id);
+    const totalVal = clubPlayers.reduce((s,p)=>s+p.rating,0);
+    card.innerHTML=`
+      <h3>${esc(cl.name)} <span style="font-size:.75rem;color:#889988;font-family:IBM Plex Mono">Funds: <span class="club-funds-display" data-id="${cl.id}">${(cl.funds||0).toLocaleString()}</span></span></h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+        <label style="font-size:.75rem;color:#889988">Name
+          <input class="editable club-name" value="${esc(cl.name)}" data-id="${cl.id}" style="max-width:160px">
+        </label>
+        <label style="font-size:.75rem;color:#889988">Owner Discord ID
+          <input class="editable club-owner" value="${esc(cl.owner_discord_id)}" data-id="${cl.id}" style="max-width:140px">
+        </label>
+        <label style="font-size:.75rem;color:#889988">Funds
+          <input type="number" class="editable club-funds" value="${cl.funds||0}" min="0" data-id="${cl.id}" style="max-width:110px">
+        </label>
+        <button class="btn btn-sm btn-teal save-club" data-id="${cl.id}">Save</button>
+        <button class="btn btn-sm btn-red del-club" data-id="${cl.id}">Del</button>
+      </div>
+      <div style="font-size:.75rem;color:#889988;margin-bottom:6px;text-transform:uppercase">Players (${clubPlayers.length}) · Total Rating: ${totalVal}</div>
+      <div>${clubPlayers.length?clubPlayers.map(p=>'<span class="player-tag">'+esc(p.name)+' <span class="rating-badge '+ratingClass(p.rating)+'" style="font-size:.7rem;padding:2px 6px">'+p.rating+'</span></span>').join(''):'<span style="color:#556655;font-size:.78rem">No players in this club'}</span></div>
+    `;
+    c.appendChild(card);
+  });
+  document.querySelectorAll('.save-club').forEach(b=>b.addEventListener('click',async function(){
+    const id=this.dataset.id,card=this.closest('.club-card');
+    const name=card.querySelector('.club-name').value;
+    const owner=card.querySelector('.club-owner').value;
+    const funds=parseInt(card.querySelector('.club-funds').value)||0;
+    try{
+      await api('/api/clubs/'+id,{method:'PUT',body:JSON.stringify({name,owner_discord_id:owner,funds})});
+      showStatus('Saved club','success');
+      await loadAll();
+    }catch(e){showStatus('Save failed: '+e.message,'error')}
+  }));
+  document.querySelectorAll('.del-club').forEach(b=>b.addEventListener('click',async function(){
+    const id=this.dataset.id;
+    if(!confirm('Delete this club? Players will become free agents.'))return;
+    try{
+      await api('/api/clubs/'+id,{method:'DELETE'});
+      showStatus('Club deleted','success');
+      await loadAll();
+    }catch(e){showStatus('Delete failed: '+e.message,'error')}
+  }));
+}
+
+document.getElementById('addClubBtn').addEventListener('click',async()=>{
+  const name=document.getElementById('newClubName').value.trim();
+  if(!name){showStatus('Club name required','error');return}
+  try{
+    await api('/api/clubs',{method:'POST',body:JSON.stringify({
+      name,owner_discord_id:document.getElementById('newClubOwner').value||'0'
+    })});
+    showStatus('Club added','success');
+    document.getElementById('newClubName').value='';
+    await loadAll();
+  }catch(e){showStatus('Add failed: '+e.message,'error')}
+});
+document.getElementById('refreshClubsBtn').addEventListener('click',loadAll);
+document.getElementById('setAllFundsBtn').addEventListener('click',async()=>{
+  const amount=parseInt(document.getElementById('bulkFundsInput').value)||0;
+  try{
+    const r=await api('/api/clubs/set-funds',{method:'PUT',body:JSON.stringify({amount})});
+    showStatus(`Set all ${r.clubs_updated} clubs to ${amount.toLocaleString()} funds`,'success');
+    await loadAll();
+  }catch(e){showStatus('Failed: '+e.message,'error')}
+});
+
+// ---- OFFERS ----
+function renderOffers(){
+  const tbody=document.getElementById('offersBody');
+  tbody.innerHTML='';
+  if(!offers.length){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:#556655">No pending offers.</td></tr>';
+    return;
+  }
+  offers.forEach(o=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+esc(o.player_id||o.playerName||'?')+'</td><td>'+esc(o.from_club||'?')+'</td><td>'+esc(o.to_club||'?')+'</td><td>'+(o.amount||'?')+'</td><td>'+esc(o.status||'pending')+'</td><td>'+esc(o.created_at||'')+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ---- LOAD ----
+async function loadAll(){
+  try{
+    const [p,c,o]=await Promise.all([
+      api('/api/players'),api('/api/clubs'),api('/api/pending-offers')
+    ]);
+    players=p;clubs=c;offers=o;
+    // update club dropdown in add form
+    const sel=document.getElementById('newPlayerClub');
+    sel.innerHTML='<option value="">Free Agent</option>'+clubs.map(cl=>'<option value="'+cl.id+'">'+esc(cl.name)+'</option>').join('');
+    renderPlayers();renderClubs();renderOffers();
+  }catch(e){
+    showStatus('Failed to load data: '+e.message,'error');
+  }
+}
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    if(t.dataset.tab==='offers')loadAll();
+  });
+});
+
+if (location.protocol === 'file:') {
+  const container = document.querySelector('.container');
+  const msg = document.createElement('div');
+  msg.style.cssText = 'text-align:center;padding:40px 20px;background:rgba(255,50,50,0.1);border:2px solid #FF4444;border-radius:12px;margin:20px 0';
+  msg.innerHTML = '<h2 style="color:#FF6666;font-family:Bebas Neue;letter-spacing:2px;margin-bottom:12px">Wrong Way to Open</h2>'
+    + '<p style="color:#e0e0e0;font-size:.9rem;line-height:1.6">'
+    + 'This page must be served by the admin server.<br><br>'
+    + 'Run this in your terminal:<br>'
+    + '<code style="display:inline-block;background:#0a1f0a;padding:10px 16px;border:1px solid #FFD700;border-radius:8px;margin:10px 0;color:#FFD700;font-family:IBM Plex Mono">'
+    + 'cd ersha-league-bot && source venv/bin/activate && python admin_server.py</code><br><br>'
+    + 'Then open <a href="http://localhost:8000" style="color:#00CED1">http://localhost:8000</a> in your browser.</p>';
+  container.prepend(msg);
+} else {
+  loadAll();
+}
 </script>
 </body>
 </html>

@@ -81,7 +81,7 @@ class ClubCommands(commands.Cog):
             title=f"🏛️ {match['name']}",
             color=0xFFD700,
         )
-        embed.add_field(name="Budget", value=f"💰 {match.get('budget', 0):,}", inline=True)
+        embed.add_field(name="Budget", value=f"💰 {match.get('funds', 0):,}", inline=True)
         embed.add_field(name="Squad Size", value=str(len(squad_lines)), inline=True)
         owner_mention = f"<@{match['owner_discord_id']}>" if match["owner_discord_id"] and match["owner_discord_id"] not in (
             "OWNER_1_ID", "OWNER_2_ID"
@@ -123,7 +123,7 @@ class ClubCommands(commands.Cog):
             title=f"🏛️ {club['name']} — Your Club",
             color=0xFFD700,
         )
-        embed.add_field(name="Budget", value=f"💰 {club.get('budget', 0):,}", inline=True)
+        embed.add_field(name="Budget", value=f"💰 {club.get('funds', 0):,}", inline=True)
         embed.add_field(name="Squad Size", value=str(len(squad_lines)), inline=True)
         if squad_lines:
             embed.add_field(
@@ -175,10 +175,10 @@ class ClubCommands(commands.Cog):
 
         rating = match.get("rating", 50)
         fee = rating * 1000
-        if club["budget"] < fee:
+        if club["funds"] < fee:
             embed = discord.Embed(
                 title="❌ Insufficient Budget",
-                description=f"Transfer fee is **{fee:,}** but your club only has **{club['budget']:,}**.",
+                description=f"Transfer fee is **{fee:,}** but your club only has **{club['funds']:,}**.",
                 color=0xFF4444,
             )
             await interaction.followup.send(embed=embed)
@@ -187,7 +187,7 @@ class ClubCommands(commands.Cog):
         clubs = await load_clubs()
         for c in clubs:
             if c["id"] == club["id"]:
-                c["budget"] -= fee
+                c["funds"] -= fee
                 break
         await save_clubs(clubs)
 
@@ -240,7 +240,7 @@ class ClubCommands(commands.Cog):
         clubs = await load_clubs()
         for c in clubs:
             if c["id"] == club["id"]:
-                c["budget"] += refund
+                c["funds"] += refund
                 break
         await save_clubs(clubs)
 
@@ -248,7 +248,7 @@ class ClubCommands(commands.Cog):
 
         embed = discord.Embed(
             title="✅ Player Released",
-            description=f"**{match['name']}** released from **{club['name']}**. **{refund:,}** refunded to budget.",
+            description=f"**{match['name']}** released from **{club['name']}**. **{refund:,}** refunded to funds.",
             color=0x00FF88,
         )
         embed.set_footer(text="Ersha League • Powered by stats")
